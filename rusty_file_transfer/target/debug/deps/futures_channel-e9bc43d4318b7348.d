@@ -1,0 +1,11 @@
+D:\Repositories\RustyFileTransfer\rusty_file_transfer\target\debug\deps\futures_channel-e9bc43d4318b7348.rmeta: C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\lib.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\lock.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\mpsc\mod.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\mpsc\queue.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\oneshot.rs
+
+D:\Repositories\RustyFileTransfer\rusty_file_transfer\target\debug\deps\libfutures_channel-e9bc43d4318b7348.rlib: C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\lib.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\lock.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\mpsc\mod.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\mpsc\queue.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\oneshot.rs
+
+D:\Repositories\RustyFileTransfer\rusty_file_transfer\target\debug\deps\futures_channel-e9bc43d4318b7348.d: C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\lib.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\lock.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\mpsc\mod.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\mpsc\queue.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\oneshot.rs
+
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\lib.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\lock.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\mpsc\mod.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\mpsc\queue.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\futures-channel-0.3.5\src\oneshot.rs:

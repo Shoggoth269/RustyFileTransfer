@@ -1,0 +1,12 @@
+d:\Repositories\RustyFileTransfer\rusty_file_transfer\target\rls\debug\deps\base64-4eb0015572178d80.rmeta: C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\lib.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\chunked_encoder.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\display.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\tables.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\write\mod.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\write\encoder.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\encode.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\decode.rs
+
+d:\Repositories\RustyFileTransfer\rusty_file_transfer\target\rls\debug\deps\base64-4eb0015572178d80.d: C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\lib.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\chunked_encoder.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\display.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\tables.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\write\mod.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\write\encoder.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\encode.rs C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\decode.rs
+
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\lib.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\chunked_encoder.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\display.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\tables.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\write\mod.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\write\encoder.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\encode.rs:
+C:\Users\Shogg\.cargo\registry\src\github.com-1ecc6299db9ec823\base64-0.11.0\src\decode.rs:
