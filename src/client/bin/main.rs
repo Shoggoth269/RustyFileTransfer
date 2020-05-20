@@ -1,12 +1,26 @@
 use std::collections::HashMap;
-use std::error::Error;
+// use std::error::Error;
 use std::fs::File;
+use std::io;
 use std::io::prelude::*;
-use std::io::{stdin, stdout, Read, SeekFrom, Write};
+use std::io::{BufReader, Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::path::Path;
 use std::str;
-use text_io::read;
+use serde::{Serialize, Deserialize};
+
+
+#[derive(Serialize, Deserialize, Debug)]
+enum Status {
+    Sending(String),
+    Receiving,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Handshake {
+    status: Status,
+    filename: String,
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Start by collecting our public IP address
@@ -32,12 +46,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Your public IP Address: {:#?}\n", public_ip);
 
     // Determine whether we are sending or receiving
-    let mut input: char;
+    let mut reader = BufReader::new(io::stdin());
+    let mut input: Vec<u8> = Vec::new();
+    let mut input_str: String;
 
     loop {
-        print!("Select an option:\n\n\t1. Send a file\n\t2. Receive a file\n:>");
-        input = read!();
-        if input != '1' && input != '2' {
+        print!("Select an option:\n\n\t1. Send a file\n\t2. Receive a file\n:> ");
+        // TODO: Fix Expect
+        io::stdout().flush().expect("flush failed!");
+        // TODO: Fix Unwrap
+        reader.read_until(b'\n', &mut input).unwrap();
+        input_str = String::from_utf8_lossy(&input).into_owned();
+
+        if input_str.ends_with('\n') {
+            input_str.pop();
+        }
+        if input_str.ends_with('\r') {
+            input_str.pop();
+        }
+
+        if input_str != "1" && input_str != "2" {
             println!("Error: enter a valid option.");
         } else {
             println!("");
@@ -45,27 +73,48 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    // Connect to the server
+    let server_ip = String::from("104.237.129.224:37626");
+    let mut stream = match TcpStream::connect(&server_ip) {
+        Ok(stream) => stream,
+        Err(_) => panic!("Error when connecting to server IP: {:#?}", server_ip),
+    };
+
     // C:\Users\Shogg\Desktop\Game Soundtrack Downloader (Python 3).py
     // Send a file
-    if input == '1' {
-        println!("Enter remote IP and port. E.g.: 127.0.0.1:80\n:>");
-        let remote_ip: String = read!("{}\n");
-        let mut remote_ip: String = read!("{}\n");
+    if input_str == "1" {
+        
+        print!("Enter remote IP. E.g.: 127.0.0.1\n:> ");
+        // TODO: Fix Expect
+        io::stdout().flush().expect("flush failed!");
 
-        if remote_ip.ends_with("\r") {
+        reader.read_until(b'\n', &mut input).unwrap();
+        let mut remote_ip = String::from_utf8_lossy(&input).into_owned();
+
+        if remote_ip.ends_with('\n') {
+            remote_ip.pop();
+        }
+        if remote_ip.ends_with('\r') {
             remote_ip.pop();
         }
 
-        let mut stream = match TcpStream::connect(&remote_ip) {
-            Ok(stream) => stream,
-            Err(_) => panic!("Error when connecting to remote IP: {:#?}", remote_ip),
-        };
+        // TODO: Send info to server and wait for confirmation before going further
+        // TODO: Pack info into a struct and serialize/deserialize rather than dumb protocol ("Filename::")
 
-        println!("Enter file name to send.\n:>");
-        let mut filename: String = read!("{}\n");
-        if filename.ends_with("\r") {
-            filename.truncate(filename.len() - 1);
+        print!("Enter file name to send.\n:> ");
+        // TODO: Fix Expect
+        io::stdout().flush().expect("flush failed!");
+
+        reader.read_until(b'\n', &mut input).unwrap();
+        let mut filename = String::from_utf8_lossy(&input).into_owned();
+
+        if filename.ends_with('\n') {
+            filename.pop();
         }
+        if filename.ends_with('\r') {
+            filename.pop();
+        }
+
         // Open file
         let path = Path::new(&filename);
         let display = path.display();
@@ -78,171 +127,75 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             ),
             Ok(file) => file,
         };
-
-        let filename_send: String = String::from("Filename::")
-            + match path.file_name() {
+        
+        let handshake = Handshake {
+            status: Status::Sending(remote_ip),
+            filename: match path.file_name() {
                 Some(name) => match name.to_str() {
-                    Some(name) => name,
+                    Some(name) => String::from(name),
                     None => panic!("Error when getting file name from path (internal)."),
                 },
                 None => panic!("Error when getting file name from path."),
-            };
-        let size: [u8; 2] = [
-            (filename_send.as_bytes().len() as u16 >> 8) as u8,
-            (filename_send.as_bytes().len() as u16 & 0xFF) as u8,
-        ];
-
-        // Debug Prints
-        // println!("\n\nNum bytes: {}\n\n", ((size[0] as u16) << /*fix dumb highlighting>*/ 8 | (size[1] as u16)) as usize);
-        // println!("\n\nSize Array: {:#?}", size);
-        // println!("\n\nNum bytes (original): {}\n\n", filename_send.as_bytes().len());
-
-        match stream.write_all(&size) {
-            Err(_) => panic!("Error when sending size."),
-            Ok(_) => {}
-        }
-
-        match stream.write_all(filename_send.as_bytes()) {
-            Err(_) => panic!("Error when sending file name."),
-            Ok(_) => {}
-        }
-
-        let file_size = match file.seek(SeekFrom::End(0)) {
-            Ok(file_size) => file_size,
-            Err(_) => panic!("Error when getting length of file."),
+            },
         };
-        // Go back to the start of the file
-        match file.seek(SeekFrom::Start(0)) {
+        // TODO: Fix Unwrap
+        let serialized_handshake = bincode::serialize(&handshake).unwrap();
+        match stream.write_all(&serialized_handshake) {
+            Err(_) => panic!("Error when sending handshake."),
             Ok(_) => {}
-            Err(_) => panic!("Error when moving to beginning of file."),
         }
 
+        // Create a buffer with size of 50 KB
+        let mut contents = Vec::with_capacity(51200);
         loop {
-            // check how far from end, read 1024 or until end, send
-            let current_position = match file.seek(SeekFrom::Current(0)) {
-                Ok(current_position) => current_position,
-                Err(_) => panic!("Error when getting current position of file."),
-            };
+            match file.read(&mut contents) {
+                Ok(n) => {
+                    // if n is less than contents.len(), we should be done
+                    // if n == 0, we are definitely done
 
-            if (file_size - current_position) >= 1024 {
-                // Go ahead and do a full 1024 bytes
-                let mut bytes = [0; 1024];
-                match file.read_exact(&mut bytes) {
-                    Ok(_) => {}
-                    Err(_) => panic!("Error when reading bytes from file."),
-                }
+                    // Write all contents of buffer from 0 to n (number of bytes read)
+                    // TODO: Fix Unwrap
+                    // TODO: Do we need to reset the contents buffer?
+                    stream.write_all(&contents[0..n]).unwrap();
 
-                let size: [u8; 2] = [
-                    (bytes.len() as u16 >> 8) as u8,
-                    (bytes.len() as u16 & 0xFF) as u8,
-                ];
-
-                match stream.write_all(&size) {
-                    Err(_) => panic!("Error when sending size."),
-                    Ok(_) => {}
-                }
-
-                match stream.write_all(&mut bytes) {
-                    Ok(_) => {}
-                    Err(_) => panic!("Error when writing bytes to stream."),
-                }
-            } else {
-                let mut bytes: Vec<u8> = Vec::new();
-                match file.read_to_end(&mut bytes) {
-                    Ok(_) => {}
-                    Err(_) => panic!("Error when reading bytes from file."),
-                }
-
-                // Signify the end of the file
-                bytes.push('E' as u8);
-                bytes.push('O' as u8);
-                bytes.push('F' as u8);
-                bytes.push('F' as u8);
-                bytes.push('O' as u8);
-                bytes.push('E' as u8);
-
-                let size: [u8; 2] = [
-                    (bytes.len() as u16 >> 8) as u8,
-                    (bytes.len() as u16 & 0xFF) as u8,
-                ];
-
-                match stream.write_all(&size) {
-                    Err(_) => panic!("Error when sending size."),
-                    Ok(_) => {}
-                }
-
-                match stream.write_all(&mut bytes) {
-                    Ok(_) => {}
-                    Err(_) => panic!("Error when writing bytes to stream."),
-                }
-
-                break;
+                    // Do we also need to check if n is less than 51200 (total size of buffer)?
+                    if n == 0 {
+                        break;
+                    }
+                },
+                Err(_) => panic!("Error when reading from file."),
             }
         }
-    }
-    // End file send
+    } // End file send
     // Receive a file
     else {
-        let listener = match TcpListener::bind("127.0.0.1:0") {
-            Ok(listen) => listen,
-            Err(_) => panic!("Error when creating TCPListener."),
+        // Start by creating a Handshake to let the server know we are receiving
+        // Filename is useless
+        // TODO: change filename to Option?
+        let handshake = Handshake {
+            status: Status::Receiving,
+            filename: String::new(),
         };
 
-        println!("Listener created with port: {:?}\nProvide your public IP address and port to the sender.", match listener.local_addr() {
-            Ok(port) => port.port(),
-            Err(_) => panic!("Error when getting port from TCPListener."),
-        });
-
-        // Once we get a connection, we first receive the filename and extension
-        // From there, will will continue receiving bytes until we reach a terminator sequence
-        let mut stream = match listener.accept() {
-            Ok((stream, _)) => stream,
-            Err(_) => panic!("Error when accpeting incoming connection."),
-        };
-
-        let mut size: [u8; 2] = [0; 2];
-
-        // Read filename and create file
-        // Read two bytes that tell us how many bytes will be in the next chunk
-        // This is used because read_exact requires knowing exactly how many bytes will be received
-        // Without this knowledge, it can lead to invalid data in our buffer
-        match stream.read_exact(&mut size) {
-            Err(_) => panic!("Error while receiving size bytes."),
-            Ok(_) => {} // do nothing
+        // TODO: Fix Unwrap
+        let serialized_handshake = bincode::serialize(&handshake).unwrap();
+        match stream.write_all(&serialized_handshake) {
+            Err(_) => panic!("Error when sending handshake."),
+            Ok(_) => {}
         }
 
-        let mut bytes: Vec<u8> = Vec::new();
-        bytes.resize(
-            ((size[0] as u16) << /*fix dumb highlighting>*/ 8 | (size[1] as u16)) as usize,
-            0,
-        ); // Inner comment is to fix bad syntax highlighting due to requiring matching <>
-        match stream.read_exact(&mut bytes) {
-            Err(_) => panic!("Error while receiving data bytes."),
-            Ok(_) => {} // do nothing
-        }
+        println!("Provide your public IP address to the sender to begin receiving file.");
 
-        // Debug Print
-        // println!("\n\nNum bytes: {}\n\n", ((size[0] as u16) << /*fix dumb highlighting>*/ 8 | (size[1] as u16)) as usize);
+        // Receive Handshake from server
+        // TODO: Fix Unwraps
+        let mut buf = Vec::new();
+        stream.read_to_end(&mut buf).unwrap();
+        let deserialized_handshake: Handshake = bincode::deserialize(&buf).unwrap();
 
-        // File format is "Filename::file.txt"
-        // If filename is empty, we populate the filename
-        let filename: String = match str::from_utf8(&bytes) {
-            Ok(name) => name.to_string(),
-            Err(_) => panic!("Error when parsing string for filename."),
-        };
+        let filename = deserialized_handshake.filename;
+        assert!(!filename.is_empty());
 
-        // Open file
-        // let tokens: Vec<&str> = filename.split("::").collect();
-        let tokens: Vec<String> = filename
-            .split("::")
-            .collect::<Vec<&str>>()
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect();
-        if tokens.len() != 2 {
-            panic!("Error when splitting file name: {}", filename);
-        }
-        let path = Path::new(&tokens[1]);
+        let path = Path::new(&filename);
         let display = path.display();
 
         let mut file = match File::create(&path) {
@@ -250,45 +203,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(file) => file,
         };
 
+        // Create a buffer with size of 50 KB
+        let mut buf = Vec::with_capacity(51200);
         loop {
-            // Read two bytes that tell us how many bytes will be in the next chunk
-            // This is used because read_exact requires knowing exactly how many bytes will be received
-            // Without this knowledge, it can lead to invalid data in our buffer
-            match stream.read_exact(&mut size) {
-                Err(_) => panic!("Error while receiving size bytes."),
-                Ok(_) => {} // do nothing
-            }
+            
+            // TODO: Fix Unwrap
+            match stream.read(&mut buf) {
+                Ok(n) => {
+                    match file.write_all(&buf) {
+                        Err(_) => panic!("Error when writing bytes to file."),
+                        Ok(_) => {}
+                    }
 
-            let mut bytes: Vec<u8> = Vec::new();
-            bytes.resize(
-                ((size[0] as u16) << /*fix dumb highlighting>*/ 8 | (size[1] as u16)) as usize,
-                0,
-            ); // Inner comment is to fix bad syntax highlighting due to requiring matching <>
-            match stream.read_exact(&mut bytes) {
-                Err(_) => panic!("Error while receiving data bytes."),
-                Ok(_) => {} // do nothing
-            }
-
-            // Check last six bytes of vector, if we always add these bytes to our last chunk, we know it will be long enough to avoid errors (in the case that we sent less than 6 useful bytes)
-            let mut end = String::new();
-            for index in bytes.len() - 6..bytes.len() {
-                end.push(bytes[index] as char);
-            }
-            if end == "EOFFOE" {
-                // Throw away the last six bytes and end after this
-                bytes.truncate(bytes.len() - 6);
-                match file.write_all(&bytes) {
-                    Err(_) => panic!("Error when writing bytes to file."),
-                    Ok(_) => {}
+                    if n == 0 {
+                        break;
+                    }
                 }
-                break;
-            } else {
-                // Save all bytes and continue to the next chunk
-                match file.write_all(&bytes) {
-                    Err(_) => panic!("Error when writing bytes to file."),
-                    Ok(_) => {}
-                }
-            }
+                Err(_) => panic!("Error when reading from stream."),
+            }            
         }
     } // End file receive
 
