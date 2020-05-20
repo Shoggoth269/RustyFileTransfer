@@ -181,7 +181,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // TODO: change filename to Option?
         let handshake = Handshake {
             status: Status::Receiving,
-            filename: String::new(),
+            filename: String::from(""),
         };
 
         // TODO: Fix Unwrap
