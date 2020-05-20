@@ -215,9 +215,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Receive Handshake from server
         // TODO: Fix Unwraps
-        let mut buf = Vec::new();
-        stream.read_to_end(&mut buf).unwrap();
-        let deserialized_handshake: Handshake = bincode::deserialize(&buf).unwrap();
+        let mut handshake_bytes = [0u8 , 2];
+        stream.read_exact(&mut handshake_bytes)?;
+        let handshake_bytes = (((handshake_bytes[0] as u16) << 8) | (handshake_bytes[1] as u16)) as usize;
+
+        let mut buf = Vec::with_capacity(handshake_bytes);
+        buf.resize(handshake_bytes, 0);
+        stream.read_exact(&mut buf)?;
+        let deserialized_handshake: Handshake = bincode::deserialize(&buf)?;
 
         let filename = deserialized_handshake.filename;
         assert!(!filename.is_empty());

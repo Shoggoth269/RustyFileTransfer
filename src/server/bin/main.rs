@@ -89,6 +89,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                             };
                             let serialized_handshake = bincode::serialize(&filename_handshake).unwrap();
                             
+                            // Write size of serialized_handshake
+                            let handshake_bytes = [(serialized_handshake.len() >> 8) as u8, 
+                            (serialized_handshake.len() & 0xFF) as u8];
+
+                            match receiving_connection.write_all(&handshake_bytes) {
+                                Err(_) => panic!("Error when sending handshake bytes: {:?}, {:?}", handshake_bytes, serialized_handshake),
+                                Ok(_) => {},
+                            }
+
                             match receiving_connection.write_all(&serialized_handshake) {
                                 Err(_) => panic!("Error when sending filename handshake."),
                                 Ok(_) => {},
@@ -161,13 +170,19 @@ fn handle_connection(mut stream: TcpStream) -> Result<(), Box<dyn Error>>  {
 }
 
 fn handle_transfer(stream: &mut TcpStream) -> Result<Handshake, Box<dyn Error>> {
+    println!("Entering handle_transfer");
     let mut handshake_bytes = [0u8 , 2];
     stream.read_exact(&mut handshake_bytes)?;
     let handshake_bytes = (((handshake_bytes[0] as u16) << 8) | (handshake_bytes[1] as u16)) as usize;
+    println!("handshake_bytes: {:?}", handshake_bytes);
 
     let mut buf = Vec::with_capacity(handshake_bytes);
+    buf.resize(handshake_bytes, 0);
+    println!("buf.len(): {:?}", buf.len());
     stream.read_exact(&mut buf)?;
     let deserialized_handshake: Handshake = bincode::deserialize(&buf)?;
+
+    println!("deserialized_handshake: {:?}", deserialized_handshake);
 
     Ok(deserialized_handshake)
 }
