@@ -45,7 +45,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     match handshake.status {
                         Status::Receiving => {
                             let mut c_pool = connection_pool.lock().unwrap();
-                            c_pool.push(stream);
+
+                            // TODO: Fix Unwrap
+                            c_pool.push(stream.try_clone().unwrap());
                         } // end match Status::Receiving
                         Status::Sending(ip_receiver) => {
 

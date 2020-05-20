@@ -153,8 +153,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         (serialized_handshake.len() & 0xFF) as u8];
 
         match stream.write_all(&handshake_bytes) {
-            Ok(_) => panic!("Error when sending handskahe bytes."),
-            Err(_) => {},
+            Err(_) => panic!("Error when sending handshake bytes."),
+            Ok(_) => {},
         }
 
         match stream.write_all(&serialized_handshake) {
@@ -202,8 +202,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         (serialized_handshake.len() & 0xFF) as u8];
 
         match stream.write_all(&handshake_bytes) {
-            Ok(_) => panic!("Error when sending handskahe bytes."),
-            Err(_) => {},
+            Err(_) => panic!("Error when sending handshake bytes: {:?}, {:?}", handshake_bytes, serialized_handshake),
+            Ok(_) => {},
         }
 
         match stream.write_all(&serialized_handshake) {
