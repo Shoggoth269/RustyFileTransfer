@@ -26,7 +26,7 @@ struct Handshake {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let listener = TcpListener::bind("0.0.0.0:37625")?;
+    let listener = TcpListener::bind("0.0.0.0:37626")?;
     let t_pool = ThreadPool::new(8);
     // TODO: Arc<Mutex<Vec<Arc<Mutex<TcpStream>>>>> - Would this allow grabbing a single stream and allowing other threads access to the pool?
     let pending_receivers: Arc<Mutex<Vec<TcpStream>>> = Arc::new(Mutex::new(Vec::new()));
