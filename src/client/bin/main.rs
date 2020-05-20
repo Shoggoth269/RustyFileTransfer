@@ -58,6 +58,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         reader.read_until(b'\n', &mut input).unwrap();
         input_str = String::from_utf8_lossy(&input).into_owned();
 
+        input.clear();
+        
+
         if input_str.ends_with('\n') {
             input_str.pop();
         }
@@ -91,6 +94,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         reader.read_until(b'\n', &mut input).unwrap();
         let mut remote_ip = String::from_utf8_lossy(&input).into_owned();
 
+        input.clear();
+
         if remote_ip.ends_with('\n') {
             remote_ip.pop();
         }
@@ -107,6 +112,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         reader.read_until(b'\n', &mut input).unwrap();
         let mut filename = String::from_utf8_lossy(&input).into_owned();
+
+        input.clear();
 
         if filename.ends_with('\n') {
             filename.pop();

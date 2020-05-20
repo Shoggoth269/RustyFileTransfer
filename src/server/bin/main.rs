@@ -63,6 +63,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                                     // TODO: Can we get a lock on this connection and release the lock on connection_pool?
                                     // TODO: Should get a reference instead of try_clone() so that we can later remove from vector?
 
+                                    println!("ip_address: {}\nip_receiver: {}\nconnection: {:?}", ip_address, ip_receiver, connection);
+
                                     receiving_connection = match connection.try_clone() {
                                         Ok(s) => Some(s),
                                         Err(_) => panic!("Error when cloning stream from connection pool."),
@@ -73,7 +75,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                             let mut receiving_connection = match receiving_connection {
                                 Some(s) => s,
-                                None => panic!("Error: no stream found for given IP address."),
+                                None => panic!("Error: no stream found for given IP address: \n{:?}", c_pool),
                             };
 
                             // Use the connection to perform the file transfer from stream to connection
