@@ -147,6 +147,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
         // TODO: Fix Unwrap
         let serialized_handshake = bincode::serialize(&handshake).unwrap();
+
+        // Write size of serialized_handshake
+        let handshake_bytes = [(serialized_handshake.len() >> 8) as u8, 
+                                        (serialized_handshake.len() & 0xFF) as u8];
+
+        match stream.write_all(&handshake_bytes) {
+            Ok(_) => panic!("Error when sending handskahe bytes."),
+            Err(_) => {},
+        }
+
         match stream.write_all(&serialized_handshake) {
             Err(_) => panic!("Error when sending handshake."),
             Ok(_) => {}
@@ -186,6 +196,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // TODO: Fix Unwrap
         let serialized_handshake = bincode::serialize(&handshake).unwrap();
+
+        // Write size of serialized_handshake
+        let handshake_bytes = [(serialized_handshake.len() >> 8) as u8, 
+                                        (serialized_handshake.len() & 0xFF) as u8];
+
+        match stream.write_all(&handshake_bytes) {
+            Ok(_) => panic!("Error when sending handskahe bytes."),
+            Err(_) => {},
+        }
+
         match stream.write_all(&serialized_handshake) {
             Err(_) => panic!("Error when sending handshake."),
             Ok(_) => {}

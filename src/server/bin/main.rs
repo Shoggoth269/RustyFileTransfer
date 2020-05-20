@@ -159,8 +159,12 @@ fn handle_connection(mut stream: TcpStream) -> Result<(), Box<dyn Error>>  {
 }
 
 fn handle_transfer(stream: &mut TcpStream) -> Result<Handshake, Box<dyn Error>> {
-    let mut buf = Vec::new();
-    stream.read_to_end(&mut buf)?;
+    let mut handshake_bytes = [0u8 , 2];
+    stream.read_exact(&mut handshake_bytes)?;
+    let handshake_bytes = (((handshake_bytes[0] as u16) << 8) | (handshake_bytes[1] as u16)) as usize;
+
+    let mut buf = Vec::with_capacity(handshake_bytes);
+    stream.read_exact(&mut buf)?;
     let deserialized_handshake: Handshake = bincode::deserialize(&buf)?;
 
     Ok(deserialized_handshake)
